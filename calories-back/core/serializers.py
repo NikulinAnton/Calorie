@@ -77,3 +77,10 @@ class DietSerializer(serializers.ModelSerializer):
             {**validated_data, "owner": self.context["request"].user}
         )
         return instance
+
+
+class DietListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Diet
+        fields = ["id", "owner", "date"]
+        read_only = fields

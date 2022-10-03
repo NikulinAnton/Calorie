@@ -13,6 +13,7 @@ from core.models import Diet, DietFood
 from core.permissions import IsSuperuserOrIsObjectOwner
 from core.serializers import (
     DietFoodSerializer,
+    DietListSerializer,
     DietSerializer,
     FoodReadOnlySerializer,
     LoginSerializer,
@@ -65,9 +66,22 @@ class DietViewSet(
 ):
     serializer_class = DietSerializer
     permission_classes = [IsSuperuserOrIsObjectOwner]
-    queryset = Diet.objects.prefetch_related(
-        Prefetch("diet_foods", DietFood.objects.select_related("diet", "food"))
-    )
+    queryset = Diet.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return DietListSerializer
+        return self.serializer_class
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.action != "list":
+            queryset = queryset.prefetch_related(
+                Prefetch("diet_foods", DietFood.objects.select_related("diet", "food"))
+            )
+        if self.request.user.is_superuser:
+            return queryset
+        return queryset.filter(owner=self.request.user)
 
 
 class DietFoodViewSet(ModelViewSet):
