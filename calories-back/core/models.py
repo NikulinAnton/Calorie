@@ -31,7 +31,7 @@ class CUser(AbstractBaseUser, ParanoidModel):
 
     @property
     def full_name(self):
-        return f'{self.first_name} {self.last_name or ""}'
+        return f"{self.first_name} {self.last_name or ''}"
 
     def __str__(self):
         return f"{self.pk} {self.get_username()}"
@@ -42,6 +42,10 @@ class Diet(ParanoidModel):
     owner = models.ForeignKey(CUser, on_delete=models.PROTECT)
     date = models.DateField(db_index=True)
 
+    @property
+    def diet_foods(self):
+        return DietFood.objects.filter(diet=self.id)
+
     class Meta:
         unique_together = ["owner", "date"]
         ordering = ["date"]
@@ -51,7 +55,7 @@ class Diet(ParanoidModel):
 
 
 class DietFood(models.Model):
-    diet = models.ForeignKey(Diet, on_delete=models.PROTECT)
+    diet = models.ForeignKey(Diet, on_delete=models.PROTECT, related_name="diet_foods")
     food = models.ForeignKey("Food", on_delete=models.PROTECT, null=True)
     quantity = models.PositiveIntegerField()
 

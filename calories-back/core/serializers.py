@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 
 from core.models import Diet, DietFood, Food
-from core.utils import create_dietfood, update_dietfood
+from core.utils import create_diet_food, update_diet_food
 
 
 class LoginSerializer(serializers.Serializer):
@@ -50,17 +50,19 @@ class DietFoodSerializer(serializers.ModelSerializer):
 
     @transaction.atomic()
     def create(self, validated_data):
-        return create_dietfood(validated_data, self.context["request"].user)
+        return create_diet_food(validated_data, self.context["request"].user)
 
     def update(self, instance, validated_data):
-        return update_dietfood(instance, validated_data, self.context["request"].user)
+        return update_diet_food(instance, validated_data, self.context["request"].user)
 
 
 class DietSerializer(serializers.ModelSerializer):
+    diet_foods = DietFoodSerializer(many=True, read_only=True)
+
     class Meta:
         model = Diet
-        fields = ["id", "owner", "date"]
-        read_only_fields = ["id", "owner"]
+        read_only = ["id", "owner", "diet_foods"]
+        fields = read_only + ["date"]
 
     def validate_date(self, date):
         queryset = Diet.objects.filter(owner=self.context["request"].user, date=date)

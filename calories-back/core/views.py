@@ -1,5 +1,6 @@
 import requests
 from django.contrib.auth import login, logout
+from django.db.models import Prefetch
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, permissions, status
@@ -64,13 +65,15 @@ class DietViewSet(
 ):
     serializer_class = DietSerializer
     permission_classes = [IsSuperuserOrIsObjectOwner]
-    queryset = Diet.objects.all()
+    queryset = Diet.objects.prefetch_related(
+        Prefetch("diet_foods", DietFood.objects.select_related("diet", "food"))
+    )
 
 
 class DietFoodViewSet(ModelViewSet):
     serializer_class = DietFoodSerializer
     permission_classes = [IsSuperuserOrIsObjectOwner]
-    queryset = DietFood.objects.all()
+    queryset = DietFood.objects.select_related("diet", "food")
 
     def get_queryset(self):
         queryset = super().get_queryset()

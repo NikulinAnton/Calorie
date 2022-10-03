@@ -5,13 +5,13 @@ from django_tiny_util.models import update_fields
 from core.models import CUser, DietFood, Food
 
 
-def create_dietfood(validated_data: dict, owner: CUser) -> DietFood:
+def create_diet_food(validated_data: dict, owner: CUser) -> DietFood:
     food_data = validated_data.pop("food")
     food = _update_or_create_food(food_data, owner)
     return DietFood.objects.create(**validated_data, food=food)
 
 
-def update_dietfood(
+def update_diet_food(
     diet_food_instance: DietFood, validated_data: dict, owner: CUser
 ) -> DietFood:
     food_data = validated_data.pop("food")
