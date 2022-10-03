@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+djangorestframework = "*"
+psycopg2-binary = "*"
+dj-database-url = "*"
+requests = "*"
+python-dotenv = "*"
+black = "*"
+isort = "*"
+pre-commit = "*"
+drf-spectacular = "*"
+django-paranoid = "*"
+django-model-utils = "*"
+django_case_insensitive_field = "*"
+django-tiny-util = "*"
+
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
