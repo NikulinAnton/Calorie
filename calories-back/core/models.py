@@ -3,8 +3,8 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django_paranoid.models import ParanoidModel
 
-from core.managers import CUserManager
 from core.fields import CIEmailField
+from core.managers import CUserManager
 
 phone_validate = RegexValidator(r"\d+", "Phone should be numerical")
 
@@ -21,7 +21,7 @@ class CUser(AbstractBaseUser, ParanoidModel):
     email = CIEmailField(verbose_name="Email", unique=True, max_length=512)
     first_name = models.CharField(max_length=150, null=True)
     last_name = models.CharField(max_length=150, null=True)
-    is_superuser = models.BooleanField(verbose_name='Superuser status', default=False)
+    is_superuser = models.BooleanField(verbose_name="Superuser status", default=False)
     fav_foods = models.ManyToManyField("Food")
 
     USERNAME_FIELD = "email"
@@ -40,7 +40,7 @@ class CUser(AbstractBaseUser, ParanoidModel):
 class Diet(ParanoidModel):
     foods = models.ManyToManyField("Food", through="DietFood")
     owner = models.ForeignKey(CUser, on_delete=models.PROTECT)
-    date = models.DateField()
+    date = models.DateField(db_index=True)
 
     class Meta:
         unique_together = ["owner", "date"]
