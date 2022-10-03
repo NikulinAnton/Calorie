@@ -1,18 +1,21 @@
 import requests
 from django.contrib.auth import login, logout
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import permissions, mixins
+from drf_spectacular.utils import OpenApiParameter, extend_schema
+from rest_framework import mixins, permissions, status
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
 
 from calories import settings
 from core.models import Diet, DietFood
-from core.serializers import LoginSerializer, FoodReadOnlySerializer, FoodWriteSerializer, DietSerializer, \
-    DietFoodSerializer
 from core.permissions import IsSuperuserOrIsObjectOwner
+from core.serializers import (
+    DietFoodSerializer,
+    DietSerializer,
+    FoodReadOnlySerializer,
+    LoginSerializer,
+)
 
 
 class LoginView(APIView):
@@ -40,16 +43,25 @@ class LogoutView(APIView):
 
 
 class FoodView(APIView):
-    @extend_schema(parameters=[OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY)])
+    @extend_schema(
+        parameters=[OpenApiParameter("name", OpenApiTypes.STR, OpenApiParameter.QUERY)]
+    )
     def get(self, request):
         nutrition_api_url = f"https://api.api-ninjas.com/v1/nutrition?query={self.request.query_params.get('name')}"
-        response_data = requests.get(nutrition_api_url, headers={'X-Api-Key': settings.NUTRITION_API_KEY}).json()
+        response_data = requests.get(
+            nutrition_api_url, headers={"X-Api-Key": settings.NUTRITION_API_KEY}
+        ).json()
         serializer = FoodReadOnlySerializer(data=response_data, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-class DietViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, GenericViewSet):
+class DietViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    GenericViewSet,
+):
     serializer_class = DietSerializer
     permission_classes = [IsSuperuserOrIsObjectOwner]
     queryset = Diet.objects.all()

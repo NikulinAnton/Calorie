@@ -1,6 +1,6 @@
 from django.contrib.auth.models import UserManager
-from model_utils.managers import QueryManagerMixin
 from django_paranoid.models import ParanoidModelManager
+from model_utils.managers import QueryManagerMixin
 
 
 class CUserManager(QueryManagerMixin, ParanoidModelManager, UserManager):

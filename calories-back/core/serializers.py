@@ -1,11 +1,9 @@
 from django.contrib.auth import authenticate
 from django.db import transaction
-
-
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 
-from core.models import Food, Diet, DietFood
+from core.models import Diet, DietFood, Food
 from core.utils import create_dietfood, update_dietfood
 
 
@@ -20,7 +18,9 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(email=email, password=password)
 
         if not user:
-            raise NotAuthenticated("Unable to log in with provided credentials.", "authorization")
+            raise NotAuthenticated(
+                "Unable to log in with provided credentials.", "authorization"
+            )
 
         attrs["user"] = user
         return attrs
@@ -59,15 +59,19 @@ class DietFoodSerializer(serializers.ModelSerializer):
 class DietSerializer(serializers.ModelSerializer):
     class Meta:
         model = Diet
-        fields = ['id', "owner", "date"]
-        read_only_fields = ['id', "owner"]
+        fields = ["id", "owner", "date"]
+        read_only_fields = ["id", "owner"]
 
     def validate_date(self, date):
         queryset = Diet.objects.filter(owner=self.context["request"].user, date=date)
         if queryset.exists():
-            raise ValidationError(f"Current user already has diet for the date: {date.strftime('%d.%m.%Y')}")
+            raise ValidationError(
+                f"Current user already has diet for the date: {date.strftime('%d.%m.%Y')}"
+            )
         return date
 
     def create(self, validated_data):
-        instance = super().create({**validated_data, "owner": self.context["request"].user})
+        instance = super().create(
+            {**validated_data, "owner": self.context["request"].user}
+        )
         return instance

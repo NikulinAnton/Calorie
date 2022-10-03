@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
+
 import dj_database_url
 from dotenv import load_dotenv
-
 
 load_dotenv()
 
@@ -21,10 +21,13 @@ load_dotenv()
 def get_env(variable_name, default=None):
     value = os.getenv(variable_name, default)
     if value is None:
-        raise ValueError(f"{variable_name} is not not presented in environment variables. Check your .env file")
+        raise ValueError(
+            f"{variable_name} is not not presented in environment variables. Check your .env file"
+        )
     if str(value).lower() in ("true", "false"):
         return str(value).lower() == "true"
     return value
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,7 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    'django_paranoid',
+    "django_paranoid",
     "drf_spectacular",
     "core",
 ]
@@ -138,7 +141,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DEFAULT_RENDERER_CLASSES = ("rest_framework.renderers.JSONRenderer",)
 
 REST_FRAMEWORK = {
-    "DEFAULT_THROTTLE_RATES": {"loginAttempts": "10/hr", "anon": "10000/day", "user": "10000/day"},
+    "DEFAULT_THROTTLE_RATES": {
+        "loginAttempts": "10/hr",
+        "anon": "10000/day",
+        "user": "10000/day",
+    },
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -159,7 +166,9 @@ REST_FRAMEWORK = {
 }
 
 if DEBUG:
-    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append("rest_framework.authentication.BasicAuthentication")
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].append(
+        "rest_framework.authentication.BasicAuthentication"
+    )
 
 # https://drf-spectacular.readthedocs.io
 SPECTACULAR_SETTINGS = {

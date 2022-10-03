@@ -1,10 +1,14 @@
 from django.contrib import admin
-from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView, SpectacularJSONAPIView
+from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularJSONAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 from rest_framework import routers
 
 from core import views
-
 
 router = routers.DefaultRouter()
 router.register("diets", views.DietViewSet, basename="diet")
@@ -13,8 +17,14 @@ router.register("dietfoods", views.DietFoodViewSet, basename="dietfood")
 
 schema_views = [
     path("", SpectacularAPIView.as_view(), name="schema"),
-    path("swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="schema_swagger"),
-    path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="schema_redoc"),
+    path(
+        "swagger/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="schema_swagger",
+    ),
+    path(
+        "redoc/", SpectacularRedocView.as_view(url_name="schema"), name="schema_redoc"
+    ),
     path("json/", SpectacularJSONAPIView.as_view(), name="schema_json"),
 ]
 
