@@ -84,3 +84,13 @@ class DietListSerializer(serializers.ModelSerializer):
         model = Diet
         fields = ["id", "owner", "date"]
         read_only = fields
+
+
+class DayIncomeCaloriesSerializer(serializers.Serializer):
+    total_calories = serializers.FloatField()
+
+
+class DayIncomeMacronutrientsSerializer(serializers.Serializer):
+    total_proteins = serializers.FloatField()
+    total_carbs = serializers.FloatField()
+    total_fats = serializers.FloatField()

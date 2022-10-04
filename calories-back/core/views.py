@@ -1,9 +1,12 @@
+import datetime
+
 import requests
 from django.contrib.auth import login, logout
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Sum
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, permissions, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
@@ -12,12 +15,15 @@ from calories import settings
 from core.models import Diet, DietFood
 from core.permissions import IsSuperuserOrIsObjectOwner
 from core.serializers import (
+    DayIncomeCaloriesSerializer,
+    DayIncomeMacronutrientsSerializer,
     DietFoodSerializer,
     DietListSerializer,
     DietSerializer,
     FoodReadOnlySerializer,
     LoginSerializer,
 )
+from core.utils import get_day_calories, get_day_macronutrients
 
 
 class LoginView(APIView):
@@ -71,6 +77,10 @@ class DietViewSet(
     def get_serializer_class(self):
         if self.action == "list":
             return DietListSerializer
+        if self.action == "day_calories":
+            return DayIncomeCaloriesSerializer
+        if self.action == "day_macronutrients":
+            return DayIncomeMacronutrientsSerializer
         return self.serializer_class
 
     def get_queryset(self):
@@ -82,6 +92,28 @@ class DietViewSet(
         if self.request.user.is_superuser:
             return queryset
         return queryset.filter(owner=self.request.user)
+
+    @extend_schema(
+        parameters=[OpenApiParameter("date", OpenApiTypes.DATE, OpenApiParameter.QUERY)]
+    )
+    @action(detail=False, methods=["GET"], url_path="day-calories")
+    def day_calories(self, request, *args, **kwargs):
+        owner = self.request.user
+        date = self.request.query_params.get("date", datetime.date.today())
+        day_calories = get_day_calories(owner=owner, date=date)
+        serializer = self.get_serializer(day_calories)
+        return Response(serializer.data)
+
+    @extend_schema(
+        parameters=[OpenApiParameter("date", OpenApiTypes.DATE, OpenApiParameter.QUERY)]
+    )
+    @action(detail=False, methods=["GET"], url_path="day-macronutrients")
+    def day_macronutrients(self, request, *args, **kwargs):
+        owner = self.request.user
+        date = self.request.query_params.get("date", datetime.date.today())
+        day_macronutrients = get_day_macronutrients(owner=owner, date=date)
+        serializer = self.get_serializer(day_macronutrients)
+        return Response(serializer.data)
 
 
 class DietFoodViewSet(ModelViewSet):
